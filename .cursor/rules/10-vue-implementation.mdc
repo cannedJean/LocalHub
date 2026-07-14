@@ -1,0 +1,18 @@
+---
+description: Vue 3 implementation conventions for LocalHub
+globs: localhub-frontend/src/**/*.{vue,js,css}
+alwaysApply: false
+---
+
+# Vue implementation rules
+
+- Use Vue 3 Single File Components with JavaScript.
+- Use Vue Router for navigation.
+- Route pages belong in `src/views`; reusable UI belongs in `src/components`.
+- Components must not call Axios directly. Use `src/services`.
+- Use CSS variables from `src/styles/tokens.css`; do not hardcode design values.
+- Prefer scoped CSS and semantic HTML.
+- Reuse existing Base components.
+- Do not add Pinia, Tailwind, UI frameworks or icon packages without explicit approval.
+- Implement loading, empty, error and disabled states.
+- Do not store or log post passwords.

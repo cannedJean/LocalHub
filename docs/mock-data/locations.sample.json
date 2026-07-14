@@ -1,0 +1,23 @@
+{
+  "items": [
+    {
+      "id": "loc-001",
+      "name": "지역 명소 A",
+      "category": "attraction",
+      "address": "선정 권역 주소",
+      "latitude": 37.5665,
+      "longitude": 126.978,
+      "description": "대표 관광지 설명"
+    },
+    {
+      "id": "loc-002",
+      "name": "지역 맛집 B",
+      "category": "restaurant",
+      "address": "선정 권역 주소",
+      "latitude": 37.57,
+      "longitude": 126.982,
+      "description": "모범음식점 설명"
+    }
+  ],
+  "total": 2
+}

@@ -1,0 +1,15 @@
+---
+description: LocalHub project identity, scope and architecture rules
+globs:
+alwaysApply: true
+---
+
+# LocalHub project core
+
+- Read `AGENTS.md` before any implementation.
+- Treat `/docs` as the approved project specification.
+- Implement the Vue 3 frontend only unless the request explicitly includes backend work.
+- The approved MVP is Home, Post CRUD, password-protected edit/delete, post search, map visualization, chatbot, responsive states and deployment readiness.
+- Do not implement any Won't-Have item from `docs/01_PRODUCT_REQUIREMENTS.md`.
+- Do not infer `TARGET_REGION`, production API URL or map tile provider when marked TBD.
+- Explain contract conflicts or missing values before inventing behavior.

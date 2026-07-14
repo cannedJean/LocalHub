@@ -1,0 +1,20 @@
+---
+description: Mandatory workflow for translating Figma MCP context to LocalHub Vue code
+globs: localhub-frontend/src/**/*.{vue,js,css}
+alwaysApply: true
+---
+
+# Figma MCP integration
+
+For every Figma-driven change:
+
+1. Fetch design context for the exact target node.
+2. If the result is too large, inspect metadata and fetch smaller nodes.
+3. Fetch a screenshot for the exact state and breakpoint.
+4. Fetch variables used by the node.
+5. Inspect existing LocalHub components before implementation.
+6. Treat generated React/Tailwind output as design representation, not final code.
+7. Translate to Vue 3 SFC and the LocalHub CSS token system.
+8. Reuse supplied assets. Do not create placeholders when Figma provides an asset.
+9. Validate visual fidelity and responsive behavior against Figma.
+10. Report any difference caused by accessibility, API or project-token constraints.

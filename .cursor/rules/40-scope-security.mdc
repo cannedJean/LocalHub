@@ -1,0 +1,16 @@
+---
+description: LocalHub scope and frontend security constraints
+globs:
+alwaysApply: true
+---
+
+# Scope and security
+
+- No authentication, JWT, OAuth or account UI.
+- No comments, likes, bookmarks, tags, image uploads, weather, routes, WebSocket, i18n or admin pages.
+- No API keys or secrets in frontend source.
+- Do not commit `.env`.
+- Do not use `v-html` for external or chatbot content unless sanitized.
+- Do not store post passwords in state beyond the active request.
+- Do not log request bodies containing passwords.
+- Keep map attribution visible and use only an approved tile provider.
