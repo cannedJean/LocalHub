@@ -14,8 +14,9 @@ export function normalizeLocation(source = {}, index = 0) {
   const contentId = String(source.contentid ?? '')
   const typeId = String(source.contenttypeid ?? '')
   const type = LOCATION_TYPE_MAP.get(typeId) ?? FALLBACK_TYPE
-  const latitude = parseCoordinate(source.mapy, -90, 90)
-  const longitude = parseCoordinate(source.mapx, -180, 180)
+  // The service is Korea-only. Regional bounds also reject known 0,0/out-of-country source errors.
+  const latitude = parseCoordinate(source.mapy, 33, 39)
+  const longitude = parseCoordinate(source.mapx, 124, 132)
   const image = String(source.firstimage || source.firstimage2 || '').replace(/^http:/, 'https:')
 
   return {

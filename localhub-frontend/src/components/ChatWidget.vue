@@ -141,7 +141,7 @@ function goSource(source) {
                 v-for="(src, sIdx) in msg.sources"
                 :key="`${src.type}-${src.id}-${sIdx}`"
                 type="button"
-                class="bg-link-chip-bg text-primary px-3 py-2 rounded-[8px] hover:bg-[#dbe6fe] text-left transition-colors font-semibold truncate w-full focus:outline-none focus:ring-1 focus:ring-primary"
+                class="bg-link-chip-bg text-primary px-3 py-2 rounded-[8px] hover:bg-primary-tint text-left transition-colors font-semibold truncate w-full focus:outline-none focus:ring-1 focus:ring-primary"
                 @click="goSource(src)"
               >
                 {{ src.type === 'post' ? '💬' : '🗺' }} {{ src.label }} ↗

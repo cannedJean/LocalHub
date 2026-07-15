@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -7,7 +8,9 @@ ALLOWED_CATEGORIES = ("tour", "food", "festival", "free")
 
 
 class PostBase(BaseModel):
-    category: str = Field(..., examples=["tour"])
+    category: Literal["tour", "food", "festival", "free"] = Field(
+        ..., examples=["tour"]
+    )
     title: str = Field(..., min_length=1, max_length=100)
     content: str = Field(..., min_length=1, max_length=5000)
 
@@ -22,7 +25,7 @@ class PostUpdate(PostBase):
 
 
 class PostDelete(BaseModel):
-    password: str = Field(..., min_length=1)
+    password: str = Field(..., min_length=4, max_length=20)
 
 
 class PostRead(PostBase):

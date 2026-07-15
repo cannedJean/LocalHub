@@ -1,21 +1,30 @@
-from pydantic import BaseModel, Field
+from typing import Literal
+
+from pydantic import BaseModel, Field, field_validator
 
 
 class ChatMessage(BaseModel):
-    role: str
-    content: str
+    role: Literal["user", "assistant"]
+    content: str = Field(..., min_length=1, max_length=2000)
 
 
 class ChatRequest(BaseModel):
-    message: str = Field(..., min_length=1, examples=["대전 여행 추천해줘"])
-    history: list[ChatMessage] = Field(default_factory=list)
+    message: str = Field(..., min_length=1, max_length=500, examples=["대전 여행 추천해줘"])
+    history: list[ChatMessage] = Field(default_factory=list, max_length=20)
+
+    @field_validator("message")
+    @classmethod
+    def message_must_not_be_blank(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("메시지를 입력해 주세요.")
+        return value
 
 
 class ChatSource(BaseModel):
-    # 프론트 getChatSourceRoute 계약: type=post|location, id, label
-    type: str
+    type: Literal["post", "location"]
     id: str | int
-    label: str
+    label: str = Field(..., min_length=1, max_length=200)
 
 
 class ChatResponse(BaseModel):

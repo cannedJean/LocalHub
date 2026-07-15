@@ -27,6 +27,24 @@ def get_posts(db: Session, page: int, size: int, keyword: str | None = None, cat
     return items, total
 
 
+def search_posts(db: Session, terms: list[str], category: str | None = None, limit: int = 5):
+    """Search chatbot sources with OR semantics for short natural-language terms."""
+    query = db.query(BoardPost)
+
+    if category:
+        query = query.filter(BoardPost.category == category)
+
+    cleaned_terms = [term.strip() for term in terms if term.strip()]
+    if cleaned_terms:
+        predicates = []
+        for term in cleaned_terms:
+            like = f"%{term}%"
+            predicates.extend((BoardPost.title.ilike(like), BoardPost.content.ilike(like)))
+        query = query.filter(or_(*predicates))
+
+    return query.order_by(BoardPost.created_at.desc()).limit(limit).all()
+
+
 def get_post(db: Session, post_id: int):
     return db.query(BoardPost).filter(BoardPost.id == post_id).first()
 

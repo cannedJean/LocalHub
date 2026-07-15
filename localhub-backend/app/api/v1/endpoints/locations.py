@@ -114,4 +114,12 @@ def get_location(content_id: str):
 
 @router.get("/location-types", summary="List content types")
 def list_location_types():
-    return LOCATION_TYPES
+    counts = {}
+    for item in load_tourism_data():
+        type_id = str(item.get("contenttypeid", ""))
+        counts[type_id] = counts.get(type_id, 0) + 1
+
+    return [
+        {**location_type, "count": counts.get(location_type["id"], 0)}
+        for location_type in LOCATION_TYPES
+    ]
