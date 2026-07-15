@@ -34,6 +34,7 @@ class PostBase(BaseModel):
     title: str
     content: str
     author_name: Optional[str] = Field(default="익명")
+    category: Optional[str] = Field(default="자유게시판")
 
 
 class PostCreate(PostBase):
@@ -44,6 +45,7 @@ class PostUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
     author_name: Optional[str] = None
+    category: Optional[str] = None
     password: str
 
 
@@ -56,6 +58,14 @@ class PostResponse(PostBase):
 
     class Config:
         orm_mode = True
+
+
+class PostListResponse(BaseModel):
+    items: List[PostResponse]
+    total: int
+    page: int
+    size: int
+    total_pages: int
 
 
 class FestivalResponse(BaseModel):
@@ -80,10 +90,39 @@ class AttractionResponse(BaseModel):
     category: Optional[str] = None
     latitude: float
     longitude: float
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    image_url: Optional[str] = None
     region: RegionResponse
 
     class Config:
         orm_mode = True
+
+
+class LocationTypeResponse(BaseModel):
+    id: int
+    name: str
+    code: str
+
+
+class LocationListResponse(BaseModel):
+    items: List[AttractionResponse]
+    total: int
+    page: int
+    size: int
+    total_pages: int
+
+
+class LocationDetailResponse(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    category: Optional[str] = None
+    latitude: float
+    longitude: float
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    image_url: Optional[str] = None
 
 
 class ChatRequest(BaseModel):

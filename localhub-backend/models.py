@@ -25,6 +25,7 @@ class Post(Base):
     title = Column(String(250), nullable=False)
     content = Column(Text, nullable=False)
     author_name = Column(String(100), nullable=True, default="익명")
+    category = Column(String(50), nullable=True, default="자유게시판")
     password_hash = Column(String(128), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -53,8 +54,8 @@ class Festival(Base):
     region_id = Column(Integer, ForeignKey("regions.id"), nullable=False)
     title = Column(String(250), nullable=False)
     description = Column(Text, nullable=True)
-    start_date = Column(Date, nullable=False)
-    end_date = Column(Date, nullable=False)
+    start_date = Column(Date, nullable=True)
+    end_date = Column(Date, nullable=True)
     location = Column(String(250), nullable=True)
 
     region = relationship("Region", back_populates="festivals")
@@ -70,5 +71,8 @@ class Attraction(Base):
     category = Column(String(100), nullable=True)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
+    address = Column(String(250), nullable=True)
+    phone = Column(String(100), nullable=True)
+    image_url = Column(String(500), nullable=True)
 
     region = relationship("Region", back_populates="attractions")
