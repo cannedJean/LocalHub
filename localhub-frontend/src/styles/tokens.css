@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cat-festival: #2563eb;
+  --cat-food: #e67316;
+  --cat-tour: #16a34a;
+  --cat-free: #6b7280;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #f8fafd;
+  color: #374151;
+  font-family: 'Inter', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Category badges (community posts) */
+.cat-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-block;
+  white-space: nowrap;
+}
+.cat-badge-tour {
+  color: var(--cat-tour);
+  background-color: #f0fdf4;
+}
+.cat-badge-food {
+  color: var(--cat-food);
+  background-color: #fff7ed;
+}
+.cat-badge-festival {
+  color: var(--cat-festival);
+  background-color: #eff6ff;
+}
+.cat-badge-free {
+  color: var(--cat-free);
+  background-color: #f3f4f6;
+}
+
+/* Leaflet popup */
+#map {
+  z-index: 10;
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+.leaflet-popup-content {
+  margin: 0;
+  width: 300px !important;
+}
+
+/* Loading spinner */
+@keyframes custom-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spinner {
+  border: 3px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  animation: custom-spin 1s linear infinite;
+}
