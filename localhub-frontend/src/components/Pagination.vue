@@ -10,7 +10,7 @@ defineEmits(['update:page'])
 
 const visiblePages = computed(() => {
   const pages = []
-  const start = Math.max(1, props.page - 2)
+  const start = Math.max(1, Math.min(props.page - 2, props.totalPages - 4))
   const end = Math.min(props.totalPages, start + 4)
   for (let i = start; i <= end; i += 1) pages.push(i)
   return pages
@@ -18,7 +18,11 @@ const visiblePages = computed(() => {
 </script>
 
 <template>
-  <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-8">
+  <nav
+    v-if="totalPages > 1"
+    class="flex justify-center items-center gap-2 mt-8"
+    aria-label="페이지 이동"
+  >
     <button
       type="button"
       class="w-9 h-9 flex items-center justify-center rounded-lg border border-border text-strong disabled:opacity-30 hover:bg-page transition-colors focus:outline-none"
@@ -52,5 +56,5 @@ const visiblePages = computed(() => {
     >
       ›
     </button>
-  </div>
+  </nav>
 </template>

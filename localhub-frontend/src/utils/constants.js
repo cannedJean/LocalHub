@@ -12,6 +12,9 @@ export const LOCATION_TYPES = [
 
 export const LOCATION_TYPE_MAP = new Map(LOCATION_TYPES.map((t) => [t.id, t]))
 
+// The places-screen filter is fixed by the RFP and intentionally excludes 숙박.
+export const PLACE_FILTER_TYPES = LOCATION_TYPES.filter((type) => type.id !== '32')
+
 // Home screen shows 6 shortcuts: 관광지 · 음식점 · 축제·공연 · 문화시설 · 레포츠 · 쇼핑.
 export const HOME_CATEGORY_IDS = ['12', '39', '15', '14', '28', '38']
 

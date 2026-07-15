@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import WeatherWidget from './WeatherWidget.vue'
 
@@ -9,6 +9,8 @@ const mobileMenuOpen = ref(false)
 function closeMenu() {
   mobileMenuOpen.value = false
 }
+
+watch(() => route.fullPath, closeMenu)
 </script>
 
 <template>
@@ -18,7 +20,7 @@ function closeMenu() {
     <div class="flex items-center gap-8">
       <router-link
         to="/"
-        class="text-[22px] font-extrabold text-primary tracking-tight focus:outline-none"
+        class="text-[22px] font-extrabold text-primary tracking-tight focus:outline-none rounded"
         @click="closeMenu"
       >
         ◉ LocalHub
@@ -55,15 +57,17 @@ function closeMenu() {
         type="button"
         class="md:hidden text-2xl text-strong w-10 h-10 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary rounded"
         :aria-expanded="mobileMenuOpen"
-        aria-label="메뉴 열기"
+        aria-controls="mobile-navigation"
+        :aria-label="mobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'"
         @click="mobileMenuOpen = !mobileMenuOpen"
       >
-        ☰
+        {{ mobileMenuOpen ? '✕' : '☰' }}
       </button>
     </div>
   </header>
 
   <div
+    id="mobile-navigation"
     v-if="mobileMenuOpen"
     class="md:hidden fixed top-[72px] left-0 right-0 bg-white border-b border-border shadow-lg z-[50] flex flex-col p-4 gap-2"
   >

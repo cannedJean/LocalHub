@@ -14,7 +14,8 @@ const categories = POST_CATEGORIES
 
 const filterCat = ref(route.query.category || null)
 const filterKeyword = ref(route.query.keyword || '')
-const page = ref(parseInt(route.query.page, 10) || 1)
+const parsePage = (value) => Math.max(1, Number.parseInt(value, 10) || 1)
+const page = ref(parsePage(route.query.page))
 
 const posts = ref([])
 const totalPages = ref(1)
@@ -49,6 +50,11 @@ function applyFilters() {
   router.push({ path: '/boards', query })
 }
 
+function submitSearch() {
+  page.value = 1
+  applyFilters()
+}
+
 function setCategory(id) {
   filterCat.value = id
   page.value = 1
@@ -65,7 +71,7 @@ watch(
   (q) => {
     filterCat.value = q.category || null
     filterKeyword.value = q.keyword || ''
-    page.value = parseInt(q.page, 10) || 1
+    page.value = parsePage(q.page)
     loadData()
   },
 )
@@ -114,7 +120,7 @@ onMounted(loadData)
           type="text"
           placeholder="🔍 제목·내용 검색"
           class="w-full bg-white border border-border-input rounded-[10px] pl-4 pr-4 py-2 outline-none text-[14px] focus:border-primary focus:ring-1 focus:ring-primary"
-          @keyup.enter="applyFilters"
+          @keyup.enter="submitSearch"
         />
       </div>
     </div>

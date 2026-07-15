@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, onMounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import StateView from '../components/StateView.vue'
 import { fetchPost, deletePost } from '../api/posts'
@@ -15,6 +15,7 @@ const post = ref(null)
 const loading = ref(true)
 const error = ref(false)
 const errorMessage = ref('')
+const notFound = ref(false)
 
 const modalOpen = ref(false)
 const modalAction = ref('')
@@ -22,36 +23,76 @@ const pwd = ref('')
 const pwdError = ref('')
 const isSubmitting = ref(false)
 const pwdInput = ref(null)
+const dialogRef = ref(null)
+let previouslyFocused = null
 
 async function loadData() {
   loading.value = true
   error.value = false
   errorMessage.value = ''
+  notFound.value = false
   try {
     post.value = await fetchPost(route.params.id)
   } catch (e) {
-    error.value = true
-    errorMessage.value =
-      getApiStatus(e) === 404 ? '존재하지 않는 게시글입니다.' : getApiDetail(e, '게시글을 불러올 수 없습니다.')
+    post.value = null
+    if (getApiStatus(e) === 404) {
+      notFound.value = true
+    } else {
+      error.value = true
+      errorMessage.value = getApiDetail(e, '게시글을 불러올 수 없습니다.')
+    }
   } finally {
     loading.value = false
   }
 }
 
 function openModal(action) {
+  previouslyFocused = document.activeElement
   modalAction.value = action
   pwd.value = ''
   pwdError.value = ''
   modalOpen.value = true
+  document.body.style.overflow = 'hidden'
   nextTick(() => pwdInput.value?.focus())
+}
+
+function hideModal() {
+  modalOpen.value = false
+  document.body.style.overflow = ''
+  nextTick(() => previouslyFocused?.focus?.())
 }
 
 function closeModal() {
   if (isSubmitting.value) return
-  modalOpen.value = false
+  hideModal()
+}
+
+function handleModalKeydown(event) {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    closeModal()
+    return
+  }
+  if (event.key !== 'Tab') return
+
+  const focusable = Array.from(
+    dialogRef.value?.querySelectorAll('input:not([disabled]), button:not([disabled])') || [],
+  )
+  if (focusable.length === 0) return
+
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault()
+    last.focus()
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault()
+    first.focus()
+  }
 }
 
 async function confirmAction() {
+  if (isSubmitting.value) return
   if (!pwd.value || pwd.value.length < 4) {
     pwdError.value = '비밀번호를 4자 이상 입력해 주세요.'
     return
@@ -60,7 +101,7 @@ async function confirmAction() {
   if (modalAction.value === 'edit') {
     // Carry the password in memory; PUT on the edit form performs the real verification.
     authStore.remember(route.params.id, pwd.value)
-    modalOpen.value = false
+    hideModal()
     router.push(`/boards/${route.params.id}/edit`)
     return
   }
@@ -70,7 +111,7 @@ async function confirmAction() {
   pwdError.value = ''
   try {
     await deletePost(route.params.id, pwd.value)
-    modalOpen.value = false
+    hideModal()
     router.push('/boards')
   } catch (e) {
     const status = getApiStatus(e)
@@ -87,6 +128,9 @@ async function confirmAction() {
 }
 
 onMounted(loadData)
+onUnmounted(() => {
+  document.body.style.overflow = ''
+})
 </script>
 
 <template>
@@ -99,7 +143,19 @@ onMounted(loadData)
       ‹ 목록으로
     </button>
 
-    <StateView :loading="loading" :error="error" :error-message="errorMessage" @retry="loadData">
+    <div v-if="notFound" class="bg-white rounded-[14px] border border-border p-10 text-center shadow-sm">
+      <div class="text-[48px] font-extrabold text-primary mb-2">404</div>
+      <h1 class="text-[22px] font-extrabold text-heading mb-3">존재하지 않는 게시글입니다.</h1>
+      <p class="text-[15px] text-muted mb-6">삭제되었거나 잘못된 게시글 주소입니다.</p>
+      <router-link
+        to="/boards"
+        class="inline-flex px-5 py-2.5 bg-primary text-white font-bold rounded-[10px] hover:bg-primary-strong"
+      >
+        게시판으로 돌아가기
+      </router-link>
+    </div>
+
+    <StateView v-else :loading="loading" :error="error" :error-message="errorMessage" @retry="loadData">
       <div v-if="post" class="bg-white rounded-[14px] border border-border p-6 md:p-10 shadow-sm">
         <span :class="['cat-badge', getCategoryColor(post.category)]">
           {{ getCategoryLabel(post.category) }}
@@ -143,16 +199,18 @@ onMounted(loadData)
       v-if="modalOpen"
       class="fixed inset-0 bg-[#111827]/55 flex items-center justify-center z-[100] p-6"
       @click.self="closeModal"
-      @keydown.esc="closeModal"
+      @keydown="handleModalKeydown"
     >
       <div
+        ref="dialogRef"
         class="bg-white w-full max-w-[420px] rounded-[16px] shadow-2xl p-7"
         role="dialog"
         aria-modal="true"
         aria-labelledby="pw-modal-title"
+        aria-describedby="pw-modal-description"
       >
         <h3 id="pw-modal-title" class="text-[20px] font-bold text-heading mb-2">비밀번호 확인</h3>
-        <p class="text-[14px] text-muted mb-5 leading-relaxed">
+        <p id="pw-modal-description" class="text-[14px] text-muted mb-5 leading-relaxed">
           게시글 작성 시 입력한 비밀번호를 입력해 주세요.
         </p>
 

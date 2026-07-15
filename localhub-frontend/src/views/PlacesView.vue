@@ -10,7 +10,7 @@ import Pagination from '../components/Pagination.vue'
 import ImagePlaceholder from '../components/ImagePlaceholder.vue'
 import { fetchLocations } from '../api/locations'
 import { normalizeLocation, normalizePage } from '../utils/normalizers'
-import { CITIES, LOCATION_TYPES } from '../utils/constants'
+import { CITIES, PLACE_FILTER_TYPES } from '../utils/constants'
 
 defineProps({
   mapFirst: { type: Boolean, default: false },
@@ -27,13 +27,14 @@ L.Icon.Default.mergeOptions({
 const route = useRoute()
 const router = useRouter()
 
-const locationTypesList = LOCATION_TYPES
+const locationTypesList = PLACE_FILTER_TYPES
 const cities = CITIES
 
 const filterKeyword = ref(route.query.keyword || '')
 const filterType = ref(route.query.type || null)
 const filterCity = ref(route.query.city || null)
-const page = ref(parseInt(route.query.page, 10) || 1)
+const parsePage = (value) => Math.max(1, Number.parseInt(value, 10) || 1)
+const page = ref(parsePage(route.query.page))
 
 const items = ref([])
 const totalItems = ref(0)
@@ -176,6 +177,11 @@ function applyFilters() {
   router.push({ path: route.path, query })
 }
 
+function submitFilters() {
+  page.value = 1
+  applyFilters()
+}
+
 function setFilterType(id) {
   filterType.value = id
   page.value = 1
@@ -199,7 +205,7 @@ watch(
     filterKeyword.value = q.keyword || ''
     filterType.value = q.type || null
     filterCity.value = q.city || null
-    page.value = parseInt(q.page, 10) || 1
+    page.value = parsePage(q.page)
     loadData()
   },
 )
@@ -232,14 +238,14 @@ onUnmounted(() => {
           <input
             id="place-search"
             v-model="filterKeyword"
-            placeholder="🔍  장소명 또는 주소로 검색 (예: 유성, 둘레길, 국밥)"
+            placeholder="🔍  장소명 또는 주소로 검색  (예: 유성, 둘레길, 국밥)"
             class="w-full bg-page border border-border-input rounded-[10px] pl-4 pr-16 py-2.5 outline-none text-[15px] focus:border-primary focus:ring-1 focus:ring-primary"
-            @keyup.enter="applyFilters"
+            @keyup.enter="submitFilters"
           />
           <button
             type="button"
             class="absolute right-2 top-1/2 -translate-y-1/2 text-primary font-bold text-sm px-2 focus:outline-none"
-            @click="applyFilters"
+            @click="submitFilters"
           >
             검색
           </button>
@@ -313,7 +319,7 @@ onUnmounted(() => {
               :key="item.contentId"
               type="button"
               class="p-3 w-full text-left rounded-[12px] flex gap-4 hover:bg-page transition-colors border border-transparent h-[92px] focus:outline-none"
-              :class="{ 'ring-2 ring-primary bg-primary-tint': selected === item.contentId }"
+              :class="{ '!border-selected-border bg-primary-tint': selected === item.contentId }"
               @click="selectItem(item)"
             >
               <div class="w-[64px] h-[64px] rounded-[10px] shrink-0 overflow-hidden">

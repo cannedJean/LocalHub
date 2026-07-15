@@ -115,7 +115,7 @@ onMounted(() => {
           :loading="loadingLoc"
           :error="errorLoc"
           :empty="locations.length === 0"
-          empty-message="추천 장소를 불러오지 못했습니다."
+          empty-message="추천할 장소가 없습니다."
           @retry="loadLocations"
         >
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

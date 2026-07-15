@@ -99,7 +99,7 @@ async function submit() {
       if (!Object.values(fieldErrors).some(Boolean)) {
         generalError.value = '입력값을 다시 확인해 주세요.'
       }
-    } else if (status === 403) {
+    } else if (status === 403 && isEdit.value) {
       fieldErrors.password = '비밀번호가 일치하지 않습니다.'
     } else {
       generalError.value = getApiDetail(e, '작업 중 오류가 발생했습니다.')
@@ -163,7 +163,6 @@ onMounted(loadData)
           <textarea
             id="f-content"
             v-model="form.content"
-            maxlength="5000"
             placeholder="지역 주민들과 나누고 싶은 이야기를 자유롭게 적어주세요."
             class="w-full min-h-[160px] bg-page border border-border-input rounded-[10px] p-4 outline-none text-[15px] resize-y focus:border-primary focus:ring-1 focus:ring-primary"
             :class="{ '!border-danger': fieldErrors.content }"
@@ -180,7 +179,6 @@ onMounted(loadData)
             v-model="form.password"
             type="password"
             minlength="4"
-            maxlength="20"
             placeholder="••••••"
             class="w-full h-[46px] bg-page border border-border-input rounded-[10px] px-4 outline-none text-[15px] mb-2 focus:border-primary focus:ring-1 focus:ring-primary"
             :class="{ '!border-danger': fieldErrors.password }"

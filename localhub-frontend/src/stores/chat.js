@@ -9,7 +9,22 @@ const STORAGE_KEY = 'localhub_chat'
 function loadHistory() {
   try {
     const parsed = JSON.parse(sessionStorage.getItem(STORAGE_KEY))
-    return Array.isArray(parsed) ? parsed : []
+    if (!Array.isArray(parsed)) return []
+
+    return parsed
+      .filter(
+        (item) =>
+          item &&
+          (item.role === 'user' || item.role === 'assistant') &&
+          typeof item.content === 'string',
+      )
+      .map((item) => ({
+        role: item.role,
+        content: item.content,
+        ...(item.role === 'assistant' && Array.isArray(item.sources)
+          ? { sources: item.sources }
+          : {}),
+      }))
   } catch {
     return []
   }
@@ -30,16 +45,22 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
-  async function send(text) {
+  async function send(text, { retry = false } = {}) {
     const message = String(text ?? '').trim()
     if (!message || loading.value) return
 
-    // Block accidental duplicate of the last user message.
     const last = history.value[history.value.length - 1]
-    if (last && last.role === 'user' && last.content === message) return
+    if (retry && last?.role === 'user' && last.content === message) {
+      history.value.pop()
+    }
+
+    // Block accidental duplicate sends while preserving an explicit retry.
+    const currentLast = history.value[history.value.length - 1]
+    if (currentLast?.role === 'user' && currentLast.content === message) return
 
     lastAttempt = message
     error.value = false
+    errorMessage.value = ''
     history.value.push({ role: 'user', content: message })
     persist()
     loading.value = true
@@ -65,7 +86,7 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   function retry() {
-    if (lastAttempt) send(lastAttempt)
+    if (lastAttempt) send(lastAttempt, { retry: true })
   }
 
   function clear() {

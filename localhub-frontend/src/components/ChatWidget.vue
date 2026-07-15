@@ -1,9 +1,10 @@
 <script setup>
-import { nextTick, ref, watch } from 'vue'
+import { nextTick, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useChatStore } from '../stores/chat'
 import { getChatSourceRoute } from '../utils/chatSources'
+import { CHAT_SUGGESTIONS } from '../data/constants'
 
 const router = useRouter()
 const chat = useChatStore()
@@ -12,14 +13,9 @@ const { history, loading, error, errorMessage } = storeToRefs(chat)
 const isOpen = ref(false)
 const input = ref('')
 const chatBody = ref(null)
-
-const suggestions = [
-  '대전 관광지를 추천해줘',
-  '이번 주말 축제를 알려줘',
-  '유성구 맛집 위치를 알려줘',
-  '축제 관련 게시글을 찾아줘',
-  '오늘은 실내와 실외 중 어디가 좋아?',
-]
+const inputElement = ref(null)
+const openButton = ref(null)
+const suggestions = CHAT_SUGGESTIONS
 
 function scrollToBottom() {
   nextTick(() => {
@@ -32,6 +28,22 @@ watch(
   () => scrollToBottom(),
 )
 watch(loading, () => scrollToBottom())
+
+watch(isOpen, (open) => {
+  if (window.matchMedia('(max-width: 767px)').matches) {
+    document.body.style.overflow = open ? 'hidden' : ''
+  }
+  if (open) nextTick(() => inputElement.value?.focus())
+})
+
+onUnmounted(() => {
+  document.body.style.overflow = ''
+})
+
+function closeChat() {
+  isOpen.value = false
+  nextTick(() => openButton.value?.focus())
+}
 
 async function submit(text) {
   const message = String(text ?? '').trim()
@@ -50,10 +62,17 @@ function goSource(source) {
 </script>
 
 <template>
-  <div class="fixed bottom-6 right-6 z-[100]" :class="isOpen ? 'inset-0 md:inset-auto' : ''">
+  <div
+    class="fixed z-[100]"
+    :class="isOpen ? 'inset-0 md:inset-auto md:bottom-6 md:right-6' : 'bottom-6 right-6'"
+  >
     <div
       v-if="isOpen"
       class="w-full h-full md:w-[400px] md:h-[620px] bg-chat md:rounded-[16px] shadow-2xl flex flex-col md:border border-border overflow-hidden relative z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="chat-title"
+      @keydown.esc="closeChat"
     >
       <!-- Header -->
       <div
@@ -64,20 +83,20 @@ function goSource(source) {
             type="button"
             class="md:hidden text-white px-2 py-1 -ml-2 text-xl focus:outline-none"
             aria-label="닫기"
-            @click="isOpen = false"
+            @click="closeChat"
           >
             ←
           </button>
           <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-xl">
             🤖
           </div>
-          <span class="font-extrabold text-[16px]">로컬허브 지역 비서</span>
+          <span id="chat-title" class="font-extrabold text-[16px]">로컬허브 지역 비서</span>
         </div>
         <button
           type="button"
           class="hidden md:block text-white hover:text-white/80 transition-colors p-2 -mr-2 text-xl focus:outline-none"
           aria-label="닫기"
-          @click="isOpen = false"
+          @click="closeChat"
         >
           ✕
         </button>
@@ -173,6 +192,7 @@ function goSource(source) {
           <label for="chat-input" class="sr-only">메시지 입력</label>
           <input
             id="chat-input"
+            ref="inputElement"
             v-model="input"
             type="text"
             maxlength="500"
@@ -196,6 +216,7 @@ function goSource(source) {
 
     <button
       v-if="!isOpen"
+      ref="openButton"
       type="button"
       class="w-[64px] h-[64px] bg-primary text-white rounded-full shadow-[0_8px_16px_rgba(37,99,235,0.4)] flex items-center justify-center text-3xl hover:bg-primary-strong transition-all hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-primary-tint"
       aria-label="챗봇 열기"
