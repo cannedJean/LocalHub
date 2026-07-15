@@ -1,0 +1,7 @@
+[mcp_servers.TalkToFigma]
+command = "bun"
+args = ["run", "dist/server.js"]
+cwd = "C:\\Users\\SSAFY\\Desktop\\pj\\LocalHub\\cursor-talk-to-figma-mcp-main"
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+enabled = true
