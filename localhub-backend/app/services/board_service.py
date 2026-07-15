@@ -1,40 +1,62 @@
+from datetime import datetime, timezone
+
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.models.board import BoardPost
-from app.schemas.board import BoardPostCreate, BoardPostUpdate
+from app.schemas.board import PostCreate, PostUpdate
 
 
-def get_posts(db: Session):
-    return db.query(BoardPost).order_by(BoardPost.created_at.desc()).all()
+def get_posts(db: Session, page: int, size: int, keyword: str | None = None, category: str | None = None):
+    query = db.query(BoardPost)
+
+    if category:
+        query = query.filter(BoardPost.category == category)
+
+    if keyword:
+        like = f"%{keyword}%"
+        query = query.filter(or_(BoardPost.title.ilike(like), BoardPost.content.ilike(like)))
+
+    total = query.count()
+    items = (
+        query.order_by(BoardPost.created_at.desc())
+        .offset((page - 1) * size)
+        .limit(size)
+        .all()
+    )
+    return items, total
 
 
 def get_post(db: Session, post_id: int):
     return db.query(BoardPost).filter(BoardPost.id == post_id).first()
 
 
-def create_post(db: Session, post_data: BoardPostCreate):
-    post = BoardPost(**post_data.dict())
+def increment_views(db: Session, post: BoardPost):
+    post.views = (post.views or 0) + 1
+    db.commit()
+    db.refresh(post)
+    return post
+
+
+def create_post(db: Session, post_data: PostCreate):
+    post = BoardPost(**post_data.model_dump())
     db.add(post)
     db.commit()
     db.refresh(post)
     return post
 
 
-def update_post(db: Session, post_id: int, post_data: BoardPostUpdate):
-    post = get_post(db, post_id)
-    if not post:
-        return None
-    for field, value in post_data.dict(exclude_unset=True).items():
-        setattr(post, field, value)
+def update_post(db: Session, post: BoardPost, post_data: PostUpdate):
+    # 비밀번호는 변경하지 않고 본문/카테고리만 갱신
+    post.category = post_data.category
+    post.title = post_data.title
+    post.content = post_data.content
+    post.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(post)
     return post
 
 
-def delete_post(db: Session, post_id: int):
-    post = get_post(db, post_id)
-    if not post:
-        return None
+def delete_post(db: Session, post: BoardPost):
     db.delete(post)
     db.commit()
-    return post
